@@ -29,13 +29,27 @@ page_links = page.links_with(:href => /www.deyi.com\/forum-\d+-\d+.html/).compac
 link = page_links[0]
 # page_links.each { |link|
 File.open('items','w') { |f|
-    link.click.parser.css("a.xst").each {|item|
-        page = agent.get(item['href'])
-    # puts item['href']
-    page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
-        # f << "#{index}" + message
-        f.puts  "#{index}" + message
-    }
+
+        # page = agent.get('http://www.deyi.com/thread-10156881-1-1.html')
+        # item = page.parser.css("a.nxt")[0]
+        # until page == nil
+        #         page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
+        #             f.puts  "#{index}" + message.strip
+        #         }
+        #         item ? page = agent.get(item['href']) : break
+        #         item = page.parser.css("a.nxt")[0]
+        # end
+    link.click.parser.css("a.xst")[1..5].each {|item|
+        p item['href']
+        until page == nil
+        # page = agent.get(item['href'])
+        item ? page = agent.get(item['href']) : break
+        item = page.parser.css("a.nxt")[0]
+            page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
+            f.puts  "#{index}" + message.strip
+        }
+        end
+        sleep 5
 } #end-link-loop
 } #end -file-items
 # }
