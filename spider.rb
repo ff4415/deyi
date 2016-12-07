@@ -21,13 +21,24 @@ page = agent.get('http://www.deyi.com/forum.php')
 
 page_links = page.links_with(:href => /www.deyi.com\/forum-\d+-\d+.html/).compact
 
-File.open('forum','w') { |f|
-    page_links.each { |link|
-        f.puts link.href
+# File.open('forum','w') { |f|
+#     page_links.each { |link|
+#         f.puts link.href
+#     }
+# }
+link = page_links[0]
+# page_links.each { |link|
+File.open('items','w') { |f|
+    link.click.parser.css("a.xst").each {|item|
+        page = agent.get(item['href'])
+    # puts item['href']
+    page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
+        # f << "#{index}" + message
+        f.puts  "#{index}" + message
     }
-}
-
-
+} #end-link-loop
+} #end -file-items
+# }
 
 # pp agent.request_headers
 
