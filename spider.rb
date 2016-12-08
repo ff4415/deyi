@@ -1,5 +1,6 @@
 
 require 'mechanize'
+require 'mail'
 
 headers = {
     'Host': 'www.deyi.com',
@@ -17,18 +18,47 @@ headers = {
 agent = Mechanize.new
 agent.request_headers = headers
 
-page = agent.get('http://www.deyi.com/forum.php')
+forumPage = agent.get('http://www.deyi.com/forum.php')
 
-page_links = page.links_with(:href => /www.deyi.com\/forum-\d+-\d+.html/).compact
+forumPage_links = forumPage.links_with(:href => /www.deyi.com\/forum-\d+-\d+.html/).compact
 
 # File.open('forum','w') { |f|
 #     page_links.each { |link|
 #         f.puts link.href
 #     }
 # }
-link = page_links[0]
+# link = page_links[0]
 # page_links.each { |link|
-File.open('items','w') { |f|
+while (forumPageLink = forumPage_links.shift)
+    forumPage = forumPageLink.click
+    nextforumPageLink = forumPage.parser.css("a.nxt")[0]
+    File.open("#{forumPageLink.href.sub(/http:\/\/www.deyi.com\//, '').chomp(".html")}",'w') { |f|
+        while true
+            puts "forumPage = #{forumPage.class}"
+            puts "nextforumPageLink = #{nextforumPageLink}"
+            forumPage.parser.css("a.xst").each {|forumItemLink|
+                puts "forumItemLink = #{forumItemLink}"
+                pageItem = agent.get(forumItemLink['href'])
+                nextPageLink = pageItem.parser.css("a.nxt")[0]
+                while true
+                    p "pageItem = #{pageItem.class}"
+                    puts "nextPageLink = #{nextPageLink}"
+
+                    pageItem.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
+                        f.puts  "#{index}" + message.strip
+                    }
+
+                    nextPageLink ? pageItem = agent.get(nextPageLink['href']) : break
+                    nextPageLink = pageItem.parser.css("a.nxt")[0]
+                    sleep rand * 10
+                end #end while
+            } #end_forumItemLink.each
+            nextforumPageLink ? forumpage = agent.get(nextforumPageLink['href']) : break
+            nextforumPageLink = forumpage.parser.css("a.nxt")[0]
+        end #end_while
+    } #end file#open
+end #end while forumPageLink
+# File.open('items','w') { |f|
 
         # page = agent.get('http://www.deyi.com/thread-10156881-1-1.html')
         # item = page.parser.css("a.nxt")[0]
@@ -39,19 +69,17 @@ File.open('items','w') { |f|
         #         item ? page = agent.get(item['href']) : break
         #         item = page.parser.css("a.nxt")[0]
         # end
-    link.click.parser.css("a.xst")[1..5].each {|item|
-        p item['href']
-        until page == nil
-        # page = agent.get(item['href'])
-        item ? page = agent.get(item['href']) : break
-        item = page.parser.css("a.nxt")[0]
-            page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
-            f.puts  "#{index}" + message.strip
-        }
-        end
-        sleep 5
-} #end-link-loop
-} #end -file-items
+    # link.click.parser.css("a.xst").each {|item|
+    #     until page == nil
+    #     item ? page = agent.get(item['href']) : break
+    #     item = page.parser.css("a.nxt")[0]
+    #         page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
+    #         f.puts  "#{index}" + message.strip
+    #     }
+    #     end
+        # sleep rand * 10
+# } #end-link-loop
+# } #end -file-items
 # }
 
 # pp agent.request_headers
