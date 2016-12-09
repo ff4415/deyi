@@ -32,7 +32,8 @@ forumPage_links = forumPage.links_with(:href => /www.deyi.com\/forum-\d+-\d+.htm
 while (forumPageLink = forumPage_links.shift)
     forumPage = forumPageLink.click
     nextforumPageLink = forumPage.parser.css("a.nxt")[0]
-    File.open("#{forumPageLink.href.sub(/http:\/\/www.deyi.com\//, '').chomp(".html")}",'w') { |f|
+    fileName = forumPageLink.href.sub(/http:\/\/www.deyi.com\//, '').chomp(".html")
+    File.open("#{fileName}",'w') { |f|
         while true
             puts "forumPage = #{forumPage.class}"
             puts "nextforumPageLink = #{nextforumPageLink}"
@@ -57,6 +58,7 @@ while (forumPageLink = forumPage_links.shift)
             nextforumPageLink = forumpage.parser.css("a.nxt")[0]
         end #end_while
     } #end file#open
+    mailToQQ "#{fileName}", File.read(fileName)
 end #end while forumPageLink
 # File.open('items','w') { |f|
 
@@ -94,3 +96,20 @@ end #end while forumPageLink
 # end
 
 # page = agent.page.link_with(:text => '幼儿园五星级伙食品鉴会，甩我公司食堂100条街！').click until agent.page.parser.css("div.nxt").empty?
+def mailToQQ(qqSubject, qqBody)
+    Mail.defaults do
+        delivery_method :smtp,    :address    => "smtp.qq.com",
+        :port       => 587,
+        :user_name  => 'ff4415@qq.com',
+        :password   => 'akuiesppmjqobhdf',
+        :enable_ssl => true
+
+    end
+
+    Mail.deliver do
+        from    'ff4415@qq.com'
+        to      'ff4415@qq.com'
+        subject qqSubject
+        body    qqBody
+    end
+end
