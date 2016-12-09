@@ -51,7 +51,9 @@ while (forumPageLink = forumPage_links.shift)
             nextforumPageLink = forumpage.parser.css("a.nxt")[0]
         end #end_while
     } #end file#open
-    mailToQQ "#{fileName}", File.read(fileName)
+    Thread.new {
+        mailToQQ "#{fileName}", File.read(fileName)
+    }
 end #end while forumPageLink
 
 def mailToQQ(qqSubject, qqBody)
