@@ -22,28 +22,21 @@ forumPage = agent.get('http://www.deyi.com/forum.php')
 
 forumPage_links = forumPage.links_with(:href => /www.deyi.com\/forum-\d+-\d+.html/).compact
 
-# File.open('forum','w') { |f|
-#     page_links.each { |link|
-#         f.puts link.href
-#     }
-# }
-# link = page_links[0]
-# page_links.each { |link|
 while (forumPageLink = forumPage_links.shift)
     forumPage = forumPageLink.click
     nextforumPageLink = forumPage.parser.css("a.nxt")[0]
     fileName = forumPageLink.href.sub(/http:\/\/www.deyi.com\//, '').chomp(".html")
     File.open("#{fileName}",'w') { |f|
         while true
-            puts "forumPage = #{forumPage.class}"
-            puts "nextforumPageLink = #{nextforumPageLink}"
+            # puts "forumPage = #{forumPage.class}"
+            # puts "nextforumPageLink = #{nextforumPageLink}"
             forumPage.parser.css("a.xst").each {|forumItemLink|
-                puts "forumItemLink = #{forumItemLink}"
+                # puts "forumItemLink = #{forumItemLink}"
                 pageItem = agent.get(forumItemLink['href'])
                 nextPageLink = pageItem.parser.css("a.nxt")[0]
                 while true
-                    p "pageItem = #{pageItem.class}"
-                    puts "nextPageLink = #{nextPageLink}"
+                    # p "pageItem = #{pageItem.class}"
+                    # puts "nextPageLink = #{nextPageLink}"
 
                     pageItem.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
                         f.puts  "#{index}" + message.strip
@@ -60,42 +53,7 @@ while (forumPageLink = forumPage_links.shift)
     } #end file#open
     mailToQQ "#{fileName}", File.read(fileName)
 end #end while forumPageLink
-# File.open('items','w') { |f|
 
-        # page = agent.get('http://www.deyi.com/thread-10156881-1-1.html')
-        # item = page.parser.css("a.nxt")[0]
-        # until page == nil
-        #         page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
-        #             f.puts  "#{index}" + message.strip
-        #         }
-        #         item ? page = agent.get(item['href']) : break
-        #         item = page.parser.css("a.nxt")[0]
-        # end
-    # link.click.parser.css("a.xst").each {|item|
-    #     until page == nil
-    #     item ? page = agent.get(item['href']) : break
-    #     item = page.parser.css("a.nxt")[0]
-    #         page.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
-    #         f.puts  "#{index}" + message.strip
-    #     }
-    #     end
-        # sleep rand * 10
-# } #end-link-loop
-# } #end -file-items
-# }
-
-# pp agent.request_headers
-
-# page = agent.page.parser.css("td.t_f").text.split("\n")
-# p page.count
-# page.each_with_index do |item,index|
-# puts  "#{index}" + item
-# end
-# page.links.each do |link|
-# puts link.text
-# end
-
-# page = agent.page.link_with(:text => '幼儿园五星级伙食品鉴会，甩我公司食堂100条街！').click until agent.page.parser.css("div.nxt").empty?
 def mailToQQ(qqSubject, qqBody)
     Mail.defaults do
         delivery_method :smtp,    :address    => "smtp.qq.com",
