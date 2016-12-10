@@ -21,6 +21,7 @@ agent.request_headers = headers
 forumPage = agent.get('http://www.deyi.com/forum.php')
 
 forumPage_links = forumPage.links_with(:href => /www.deyi.com\/forum-\d+-\d+.html/).compact
+totalPageNumber = 0
 
 while (forumPageLink = forumPage_links.shift)
     forumPage = forumPageLink.click
@@ -38,17 +39,19 @@ while (forumPageLink = forumPage_links.shift)
                     # p "pageItem = #{pageItem.class}"
                     # puts "nextPageLink = #{nextPageLink}"
 
-                    pageItem.parser.css("td.t_f").text.split("\n").each_with_index { |message, index|
-                        f.puts  "#{index}" + message.strip
+                    pageItem.parser.css("td.t_f").text.split("\n").each { |message|
+                        f.puts message.strip
                     }
 
                     nextPageLink ? pageItem = agent.get(nextPageLink['href']) : break
                     nextPageLink = pageItem.parser.css("a.nxt")[0]
                     sleep rand * 10
                 end #end while
+                totalPageNumber += 1
             } #end_forumItemLink.each
             nextforumPageLink ? forumpage = agent.get(nextforumPageLink['href']) : break
             nextforumPageLink = forumpage.parser.css("a.nxt")[0]
+            f.puts "totalPageNumber = #{totalPageNumber}"
         end #end_while
     } #end file#open
     Thread.new {
