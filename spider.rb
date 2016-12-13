@@ -38,7 +38,7 @@ while (forumPageLink = forumPage_links.shift)
                 while true
                     # p "pageItem = #{pageItem.class}"
                     # puts "nextPageLink = #{nextPageLink}"
-
+                    begin
                     pageItem.parser.css("td.t_f").text.split("\n").each { |message|
                         f.puts message.strip
                     }
@@ -46,6 +46,13 @@ while (forumPageLink = forumPage_links.shift)
                     nextPageLink ? pageItem = agent.get(nextPageLink['href']) : break
                     nextPageLink = pageItem.parser.css("a.nxt")[0]
                     sleep rand * 10
+                    rescue Mechanize::ResponseCodeError
+                        mailToQQ "#{$!.class}" "code = #{$!.response_code}"
+                    rescue Mechanize::ResponseReadError
+                        mailToQQ "#{$!.class}" "code = #{$!.response_code} error = #{$!.error} uri = #{$!.uri}"
+                    rescue
+                        mailToQQ "#{$!.class}" "message = #{$!.message}"
+                    end
                 end #end while
                 totalPageNumber += 1
             } #end_forumItemLink.each
