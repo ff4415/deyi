@@ -2,6 +2,23 @@
 require 'mechanize'
 require 'mail'
 
+def mailToQQ(qqSubject, qqBody)
+    Mail.defaults do
+        delivery_method :smtp,    :address    => "smtp.qq.com",
+        :port       => 587,
+        :user_name  => 'ff4415@qq.com',
+        :password   => 'akuiesppmjqobhdf',
+        :enable_ssl => true
+
+    end
+
+    Mail.deliver do
+        from    'ff4415@qq.com'
+        to      'ff4415@qq.com'
+        subject qqSubject
+        body    qqBody
+    end
+end
 headers = {
     'Host': 'www.deyi.com',
     'Connection': 'keep-alive',
@@ -23,6 +40,7 @@ forumPage = agent.get('http://www.deyi.com/forum.php')
 forumPage_links = forumPage.links_with(:href => /www.deyi.com\/forum-\d+-\d+.html/).compact
 totalPageNumber = 0
 
+
 while (forumPageLink = forumPage_links.shift)
     forumPage = forumPageLink.click
     nextforumPageLink = forumPage.parser.css("a.nxt")[0]
@@ -42,18 +60,18 @@ while (forumPageLink = forumPage_links.shift)
                     pageItem.parser.css("td.t_f").text.split("\n").each { |message|
                         f.puts message.strip
                     }
-
                     nextPageLink ? pageItem = agent.get(nextPageLink['href']) : break
                     nextPageLink = pageItem.parser.css("a.nxt")[0]
-                    sleep rand * 10
+                    
                     rescue Mechanize::ResponseCodeError
-                        mailToQQ "#{$!.class}" "code = #{$!.response_code}"
+                        mailToQQ "#{$!.class}", "code = #{$!.response_code}, current_page= #{agent.page}"
                     rescue Mechanize::ResponseReadError
-                        mailToQQ "#{$!.class}" "code = #{$!.response_code} error = #{$!.error} uri = #{$!.uri}"
+                        mailToQQ "#{$!.class}", "code = #{$!.response_code} error = #{$!.error} uri = #{$!.uri}"
                     rescue
-                        mailToQQ "#{$!.class}" "message = #{$!.message}"
+                        mailToQQ "#{$!.class}", "message = #{$!.message}, current_page = #{agent.page}"
                     end
                 end #end while
+                sleep rand * 10
                 totalPageNumber += 1
             } #end_forumItemLink.each
             nextforumPageLink ? forumpage = agent.get(nextforumPageLink['href']) : break
@@ -65,21 +83,3 @@ while (forumPageLink = forumPage_links.shift)
         mailToQQ "#{fileName}", File.read(fileName)
     }
 end #end while forumPageLink
-
-def mailToQQ(qqSubject, qqBody)
-    Mail.defaults do
-        delivery_method :smtp,    :address    => "smtp.qq.com",
-        :port       => 587,
-        :user_name  => 'ff4415@qq.com',
-        :password   => 'akuiesppmjqobhdf',
-        :enable_ssl => true
-
-    end
-
-    Mail.deliver do
-        from    'ff4415@qq.com'
-        to      'ff4415@qq.com'
-        subject qqSubject
-        body    qqBody
-    end
-end
