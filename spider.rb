@@ -1,13 +1,16 @@
-
+require 'yaml'
 require 'mechanize'
 require 'mail'
 
+
+
 def mailToQQ(qqSubject, qqBody)
+    ps = YAML.load_file('ps.yaml')
     Mail.defaults do
         delivery_method :smtp,    :address    => "smtp.qq.com",
         :port       => 587,
         :user_name  => 'ff4415@qq.com',
-        :password   => 'akuiesppmjqobhdf',
+        :password   => ps[:ps],
         :enable_ssl => true
 
     end
