@@ -68,7 +68,7 @@ while (forumPageLink = forumPage_links.shift)
                     rescue Mechanize::ResponseReadError
                         mailToQQ "#{$!.class}", "code = #{$!.response_code} error = #{$!.error} uri = #{$!.uri}"
                     rescue
-                        mailToQQ "#{$!.class}", "message = #{$!.message}, current_page = #{agent.page}"
+                        mailToQQ "#{$!.class}", "message = #{$!.message}, current_page = #{agent.page.uri}"
                     end
                 end #end while
                 sleep rand * 10
