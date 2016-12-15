@@ -69,12 +69,12 @@ while (forumPageLink = forumPage_links.shift)
                     rescue Mechanize::ResponseCodeError
                         mailToQQ "#{$!.class}", "code = #{$!.response_code}, current_page= #{agent.page}"
                     rescue Mechanize::ResponseReadError
-                        mailToQQ "#{$!.class}", "code = #{$!.response_code} error = #{$!.error} uri = #{$!.uri}"
+                        mailToQQ "#{$!.class}", "code = #{$!.response} error = #{$!.error} uri = #{$!.uri}"
                     rescue
                         mailToQQ "#{$!.class}", "message = #{$!.message}, current_page = #{agent.page.uri}"
                     end
                 end #end while
-                sleep rand * 10
+                sleep rand
                 totalPageNumber += 1
             } #end_forumItemLink.each
             nextforumPageLink ? forumpage = agent.get(nextforumPageLink['href']) : break
