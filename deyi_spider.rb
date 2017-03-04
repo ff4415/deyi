@@ -65,7 +65,7 @@ while (forumPageLink = forumPage_links.shift)
                     }
                     nextPageLink ? pageItem = agent.get(nextPageLink['href']) : break
                     nextPageLink = pageItem.parser.css("a.nxt")[0]
-                    
+
                     rescue Mechanize::ResponseCodeError
                         mailToQQ "#{$!.class}", "code = #{$!.response_code}, current_page= #{agent.page}"
                     rescue Mechanize::ResponseReadError
